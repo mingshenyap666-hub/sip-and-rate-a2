@@ -28,3 +28,12 @@ backend/vendor
 
 #.devcontainer
 .devcontainer/.env
+
+.env
+.env.*
+!.env.example
+*.sql.gz
+.validation/
+.playwright/
+# Temporary downloads; production assets are in public/images and public/icons.
+public/design/

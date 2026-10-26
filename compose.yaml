@@ -1,0 +1,50 @@
+name: sip-and-rate
+services:
+  db:
+    image: mariadb:10.11
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Run npm run setup first}
+      MARIADB_DATABASE: ${DB_DATABASE:-sip_rate}
+      MARIADB_USER: ${DB_USERNAME:-sip_rate}
+      MARIADB_PASSWORD: ${DB_PASSWORD:?Run npm run setup first}
+    volumes:
+      - database:/var/lib/mysql
+      - ./database_export/sip_rate.sql:/docker-entrypoint-initdb.d/01-sip-rate.sql:ro
+    healthcheck:
+      test: [CMD, healthcheck.sh, --connect, --innodb_initialized]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+  php:
+    build:
+      context: .
+      dockerfile: .devcontainer/php/Dockerfile
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-sip_rate}
+      DB_USERNAME: ${DB_USERNAME:-sip_rate}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SECURE_COOKIES: ${SECURE_COOKIES:-0}
+    volumes:
+      - .:/var/www/project:ro
+    depends_on:
+      db:
+        condition: service_healthy
+  app:
+    image: node:22-bookworm-slim
+    working_dir: /workspace
+    command: sh -c "npm ci && npm run dev:frontend"
+    environment:
+      API_TARGET: http://php
+    ports:
+      - "127.0.0.1:5173:5173"
+    volumes:
+      - .:/workspace
+      - dependencies:/workspace/node_modules
+    depends_on:
+      - php
+volumes:
+  database:
+  dependencies:
