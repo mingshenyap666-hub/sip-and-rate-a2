@@ -1,0 +1,24 @@
+{
+  "name": "Sip & Rate \u2014 React, PHP and MariaDB",
+  "dockerComposeFile": ["../compose.yaml", "docker-compose.yml"],
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "initializeCommand": "node scripts/setup-env.mjs",
+  "postCreateCommand": "npm ci",
+  "forwardPorts": [5173],
+  "portsAttributes": {
+    "5173": {
+      "label": "Sip & Rate",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "bmewburn.vscode-intelephense-client"
+      ]
+    }
+  },
+  "shutdownAction": "stopCompose"
+}
