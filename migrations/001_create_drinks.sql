@@ -1,0 +1,14 @@
+
+CREATE TABLE IF NOT EXISTS Drink (
+    DrinkID INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    ProductID INT UNSIGNED NOT NULL,
+    Name VARCHAR(100) NOT NULL,
+    Description VARCHAR(500),
+    Price DECIMAL(6,2) NOT NULL,
+    Active TINYINT(1) NOT NULL DEFAULT 1,
+
+    FOREIGN KEY (ProductID)
+        REFERENCES Product(ProductID),
+
+    INDEX idx_drink_name (Name)
+);

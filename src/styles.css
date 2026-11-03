@@ -1215,3 +1215,205 @@ form > div:has(> .form-label) {
     scroll-behavior: auto !important;
   }
 }
+
+/* Drink Search */
+
+.drink-search {
+  margin: 40px 0;
+  padding: 32px;
+  background: #f8f5ef;
+  border-radius: 16px;
+}
+
+.drink-search h2 {
+  margin-bottom: 20px;
+  font-size: 28px;
+  color: #2d4036;
+}
+
+.drink-search .search-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.drink-search .search-box input {
+  flex: 1;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #d9d6cc;
+  border-radius: 8px;
+}
+
+.drink-search .search-box button {
+  background: #304b3e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 22px;
+  cursor: pointer;
+}
+
+.drink-search .search-box button:hover {
+  background: #22392e;
+}
+
+.drink-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.drink-results article {
+  background: white;
+  border: 1px solid #e8e4dc;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.drink-results article h3 {
+  font-size: 21px;
+  margin-bottom: 8px;
+}
+
+.drink-results article p {
+  margin-bottom: 12px;
+}
+
+.drink-results article strong {
+  color: #304b3e;
+  font-size: 18px;
+}
+
+@media (max-width: 600px) {
+  .drink-search {
+    padding: 20px;
+  }
+
+  .drink-search .search-box {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .drink-results {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Sip & Rate: Search Section Redesign ===== */
+
+/* Match the width of both search sections */
+.discovery .search-intro,
+.discovery .search-intro + .drink-search {
+  width: 100%;
+  max-width: 740px;
+  box-sizing: border-box;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* Café search */
+.discovery .search-intro .search-box {
+  width: 100%;
+  max-width: 100%;
+  min-height: 58px;
+}
+
+/* Drink search section */
+.discovery .search-intro + .drink-search {
+  margin-top: 28px;
+  margin-bottom: 34px;
+  padding: 26px 0 0;
+  background: transparent;
+  border: none;
+  border-top: 1px solid #ddd8ce;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Drink search heading */
+.discovery .search-intro + .drink-search h2 {
+  margin: 0 0 16px;
+  font-size: 25px;
+  font-weight: 500;
+  color: #304b3e;
+}
+
+/* Consistent search bar */
+.discovery .search-intro + .drink-search .search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  min-height: 58px;
+  margin: 0 0 12px;
+  padding: 6px;
+  background: #fffdfa;
+  border: 1px solid #ded9cf;
+  border-radius: 9px;
+  box-sizing: border-box;
+}
+
+/* Input field */
+.discovery .search-intro + .drink-search .search-box input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px;
+  margin: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  font-size: 14px;
+}
+
+/* Focus effect */
+.discovery .search-intro + .drink-search .search-box:focus-within {
+  border-color: #476b58;
+  box-shadow: 0 0 0 3px rgba(71, 107, 88, 0.10);
+}
+
+/* Match green button styling */
+.discovery .search-intro + .drink-search .search-box button {
+  padding: 12px 20px;
+  min-height: 42px;
+  background: #304b3e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.discovery .search-intro + .drink-search .search-box button:hover {
+  background: #22392e;
+}
+
+/* Search instructions and messages */
+.discovery .search-intro + .drink-search > p {
+  margin: 10px 0 0;
+  color: #827e75;
+  font-size: 13px;
+}
+
+/* Mobile layout */
+@media (max-width: 600px) {
+  .discovery .search-intro + .drink-search {
+    margin-top: 24px;
+    padding-top: 22px;
+  }
+
+  .discovery .search-intro + .drink-search .search-box {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .discovery .search-intro + .drink-search .search-box button {
+    width: 100%;
+  }
+}

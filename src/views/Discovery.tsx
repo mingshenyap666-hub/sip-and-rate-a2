@@ -1,28 +1,38 @@
+
+import { DrinkSearch } from "../components/DrinkSearch";
 import type { FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import Button from "react-bootstrap/Button";
 import { useApi } from "../lib/useApi";
 import type { Cafe } from "../lib/api";
 import { CafeGrid, Empty, Icon, Loading, Notice } from "../components/Common";
+
 const styles = ["All coffee", "Espresso", "Filter", "Cold brew", "Specialty"];
+
 export function Discovery({ home = false }: { home?: boolean }) {
   const [params] = useSearchParams(),
     navigate = useNavigate();
+
   const q = params.get("q") ?? "",
     style = params.get("style") ?? "";
+
   const query = new URLSearchParams(home ? { random: "1" } : { q, style });
+
   const {
     data,
     loading: busy,
     error,
     retry,
   } = useApi<{ cafes: Cafe[] }>("/cafes?" + query);
+
   const cafes = data?.cafes ?? [];
+
   function search(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const input = String(new FormData(e.currentTarget).get("q") ?? "");
     navigate("/cafes?" + new URLSearchParams({ q: input, style }));
   }
+
   const searchForm = (
     <form className="search-box" onSubmit={search} role="search">
       <Icon name="search" />
@@ -40,6 +50,7 @@ export function Discovery({ home = false }: { home?: boolean }) {
       <Button type="submit">Find coffee</Button>
     </form>
   );
+
   return (
     <div className="page-shell discovery">
       {home ? (
@@ -61,6 +72,7 @@ export function Discovery({ home = false }: { home?: boolean }) {
               Try “Fitzroy”, “Colombia” or your favourite café
             </small>
           </div>
+
           <div className="hero-visual">
             <img
               src="/images/coffee.jpg"
@@ -83,6 +95,11 @@ export function Discovery({ home = false }: { home?: boolean }) {
           {searchForm}
         </section>
       )}
+
+      {/* NEW FEATURE: Drink Search */}
+      <DrinkSearch />
+
+      {/* Existing coffee style filters */}
       <section className="discovery-filters" aria-label="Coffee style">
         <p className="eyebrow muted">Your coffee, your way</p>
         <div className="filter-list">
@@ -106,6 +123,8 @@ export function Discovery({ home = false }: { home?: boolean }) {
           ))}
         </div>
       </section>
+
+      {/* Existing café listings */}
       <section>
         <div className="section-heading">
           <div>
@@ -122,6 +141,7 @@ export function Discovery({ home = false }: { home?: boolean }) {
                 : `${cafes.length} café${cafes.length === 1 ? "" : "s"} to discover`}
             </p>
           </div>
+
           <div className="actions">
             {home ? (
               <Link className="btn btn-outline-primary" to="/cafes">
@@ -132,11 +152,13 @@ export function Discovery({ home = false }: { home?: boolean }) {
                 Clear filters
               </Link>
             )}
+
             <Button variant="link" disabled={busy} onClick={retry}>
               {home ? "Shuffle selection" : "Refresh"}
             </Button>
           </div>
         </div>
+
         {busy ? (
           <Loading />
         ) : error ? (

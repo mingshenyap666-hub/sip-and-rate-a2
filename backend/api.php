@@ -20,6 +20,35 @@ try {
     if ($method !== 'GET' && !hash_equals($_SESSION['csrf'], $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '')) throw new ApiError(403, 'Your session changed. Refresh the page and try again.');
 
     if ($path === '/api/health' && $method === 'GET') { query('SELECT 1'); respond(['ok' => true]); }
+    // add new code here for new endpoints
+  
+if ($path === '/api/drinks' && $method === 'GET') {
+    $search = $_GET['search'] ?? '';
+
+    if (!is_string($search) || strlen($search) > 100) {
+        throw new ApiError(422, 'Invalid search term.');
+    }
+
+    $search = trim($search);
+
+    $drinks = query(
+        'SELECT d.DrinkID, d.ProductID, d.Name,
+                d.Description, d.Price,
+                p.Name AS CafeName
+         FROM Drink d
+         JOIN Product p ON d.ProductID = p.ProductID
+         WHERE d.Active = 1
+           AND p.Active = 1
+           AND d.Name LIKE ?
+         ORDER BY d.Name
+         LIMIT 50',
+        ['%' . $search . '%']
+    )->fetchAll(PDO::FETCH_ASSOC);
+
+    respond(['drinks' => $drinks]);
+}
+
+// ------
     if ($path === '/api/auth/me' && $method === 'GET') respond(['user' => user(), 'csrf' => $_SESSION['csrf']]);
 
     if ($path === '/api/auth/register' && $method === 'POST') {
