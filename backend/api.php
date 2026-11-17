@@ -106,6 +106,34 @@ try {
         query('UPDATE `User` SET Name=? WHERE UserID=?', [$name, $user['id']]);
         respond(['user' => user()]);
     }
+    if ($path === '/api/account/email' && $method === 'PUT') {
+        $user = requireUser(); $data = body();
+        $email = strtolower(field($data, 'email', 3, 254));
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) throw new ApiError(422, 'Please enter a valid email address.');
+        $account = currentAccount($user, $data);
+        if ($email === $account['Email']) throw new ApiError(422, 'Please enter a different email address.');
+        try {
+            $updated = query('UPDATE Account SET Email=? WHERE AccountID=? AND Password=? AND Email=?', [$email, $account['AccountID'], $account['Password'], $account['Email']]);
+        } catch (PDOException $e) {
+            if (($e->errorInfo[1] ?? null) === 1062) throw new ApiError(409, 'An account with this email already exists.');
+            throw $e;
+        }
+        if ($updated->rowCount() !== 1) throw new ApiError(409, 'Your account changed in another session. Please log in again.');
+        signIn($user['id'], $_SESSION['remember'] ?? false);
+        respond(['user' => user(), 'csrf' => $_SESSION['csrf']]);
+    }
+    if ($path === '/api/account/password' && $method === 'PUT') {
+        $user = requireUser(); $data = body();
+        $password = $data['newPassword'] ?? '';
+        if (!is_string($password) || strlen($password) < 8 || strlen($password) > 72 || str_contains($password, "\0")) throw new ApiError(422, 'New password must be 8 to 72 bytes.');
+        if ($password !== ($data['confirmPassword'] ?? null)) throw new ApiError(422, 'The new passwords do not match.');
+        $account = currentAccount($user, $data);
+        if (password_verify($password, $account['Password'])) throw new ApiError(422, 'Choose a different password from your current one.');
+        $updated = query('UPDATE Account SET Password=? WHERE AccountID=? AND Password=? AND Email=?', [password_hash($password, PASSWORD_BCRYPT), $account['AccountID'], $account['Password'], $account['Email']]);
+        if ($updated->rowCount() !== 1) throw new ApiError(409, 'Your account changed in another session. Please log in again.');
+        signIn($user['id'], $_SESSION['remember'] ?? false);
+        respond(['user' => user(), 'csrf' => $_SESSION['csrf']]);
+    }
     if ($path === '/api/reviews/mine' && $method === 'GET') {
         $user = requireUser();
         respond(['reviews' => array_map('reviewTypes', query(reviewSelect() . ' WHERE r.UserID=? AND r.Active=1 ORDER BY r.Created DESC', [$user['id']])->fetchAll())]);
