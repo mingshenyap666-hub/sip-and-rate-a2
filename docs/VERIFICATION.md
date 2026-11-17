@@ -14,13 +14,15 @@ Based on `main` commit `d257b41`, including the team's merged review-rating disp
 | Production URL routing | `/`, `/account`, `/cafes/1` and `/favourites` returned the built application through Apache |
 | Private source/credential paths | `.env`, backend PHP source and SQL were not served as downloadable content |
 | Clean SQL import | Imported successfully into the disposable MariaDB database |
-| New account UI in a real browser/mobile viewport | Pending team acceptance testing |
+| Public pages in a real browser | Passed search, empty state, Cold brew filter, shuffle, detail/rating display, guest redirects, required fields and missing-page recovery; see `QA-RESULTS.md` |
+| Narrow public-page layouts | Checked the actual app in 390 px and 768 px frames; no page overflow on the covered pages; not physical-device testing |
+| Signed-in account UI and full browser journeys | Not executed in this browser run; API coverage does not replace this acceptance check |
 | Production Docker image/Compose execution | Configuration prepared; not executed in this environment |
 | Stable public hosting / HTTPS | Not deployed; requires the team's hosting account and actual URL |
 
 The new tests ran against the packaged PHP-hosting directory, not a mock API. All test identities and credentials remained in an ignored, disposable validation environment. No schema migration is needed. The deployment files retain PHP 8.3 and MariaDB 10.11 as their configured versions; the new API tests used the locally available newer versions above, so container validation is still a separate pending check.
 
-Follow `TEAM-TESTING.md` on the actual host before recording final acceptance. The 19 manual cases are not marked passed in advance.
+See `QA-RESULTS.md` for the 17 November pre-deployment results and the footer correction. Follow `TEAM-TESTING.md` on the actual host before recording final acceptance. The 19 manual cases are not marked passed in advance.
 
 ## Original A2 verification
 
