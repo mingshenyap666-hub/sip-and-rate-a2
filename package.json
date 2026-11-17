@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:hosting": "npm run build && node scripts/package-hosting.mjs",
     "lint": "oxlint",
     "preview": "vite preview",
     "setup": "node scripts/setup-env.mjs",
