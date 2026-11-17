@@ -1,6 +1,14 @@
 # Sip & Rate
 
-An English coffee-review application for INT1059 Assessment 2. Built on the lecturer's React + PHP + MariaDB starter and adapted to the team's Sip & Rate Figma design.
+An English coffee-review application for INT1059 Assessments 2 and 3. Built on the lecturer's React + PHP + MariaDB starter and adapted to the team's Sip & Rate Figma design.
+
+## Assessment 3 update
+
+- Account settings now support display name, email and password changes. Email/password changes require the current password, preserve reviews/favourites, and sign out other sessions.
+- Production Apache routing supports directly opening and refreshing React pages.
+- `npm run build:hosting` prepares a PHP-hosting bundle without local secrets. A production Dockerfile and Compose file are also included.
+- See [deployment instructions](docs/DEPLOYMENT.md) and the [team testing checklist](docs/TEAM-TESTING.md). A stable public host still needs to be configured and verified; a prepared build is not a deployed website.
+- This update preserves the review-rating display changes already merged into `main`.
 
 ## What works
 
@@ -8,7 +16,7 @@ An English coffee-review application for INT1059 Assessment 2. Built on the lect
 - Home displays three randomly selected records; Shuffle requests another selection.
 - Search by café name, suburb or bean origin; filter by coffee style.
 - Detail pages with images, descriptions, coffee metadata and calculated ratings.
-- Registration, login, logout, remembered sessions and editable display names.
+- Registration, login, logout, remembered sessions, and editable display names, email addresses and passwords.
 - Private saved cafés, plus creation, editing and deletion of your own reviews.
 - Responsive English UI, loading/error/empty states and accessible form labels.
 
@@ -127,7 +135,7 @@ The repository excludes local passwords, installed dependencies and disposable t
 
 ## Before submission
 
-Run the walkthrough in `docs/DEMO-AND-SUBMISSION.md` on the demonstration computer. Confirm the required report wording, real team contributions and current submission instructions in Canvas. Read `docs/ARCHITECTURE.md` for source attribution and scope. Email verification, password-reset email, café administration and public production hosting are outside this first version.
+For A3, follow `docs/TEAM-TESTING.md` and `docs/DEPLOYMENT.md`. The older `docs/DEMO-AND-SUBMISSION.md` records the A2 walkthrough. Confirm the required PDF report, real team contributions, stable hosted URL, live demonstration/code viva and current submission instructions in Canvas. Read `docs/ARCHITECTURE.md` for source attribution and scope. Email verification, forgotten-password email recovery and café administration are not implemented; authenticated email/password changes are implemented.
 
 Starter: https://github.com/johannesmx/AW-project-26T3
 
