@@ -854,6 +854,37 @@ form > div:has(> .form-label) {
   overflow-wrap: anywhere;
   font-size: 14px;
 }
+.account-security h3 {
+  font-size: 23px;
+  margin-bottom: 16px;
+}
+.account-security details + details {
+  border-top: 1px solid var(--line);
+  margin-top: 16px;
+  padding-top: 16px;
+}
+.account-security summary {
+  color: var(--green);
+  font-weight: 700;
+  cursor: pointer;
+}
+.account-security summary:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 4px;
+}
+.account-security details[open] summary {
+  margin-bottom: 12px;
+}
+.account-security .btn {
+  width: 100%;
+}
+.account-form-error,
+.account-form-success {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.account-form-error { color: #9c3232; }
+.account-form-success { color: var(--green); }
 .logout-button {
   display: block;
   width: 100%;
