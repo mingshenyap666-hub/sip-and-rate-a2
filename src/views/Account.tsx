@@ -10,6 +10,7 @@ import { useApi } from "../lib/useApi";
 import type { Cafe, Review, User } from "../lib/api";
 import { CafeGrid, Empty, Loading, Notice } from "../components/Common";
 import { ReviewCard } from "./CafeDetail";
+import { AccountSecurity } from "./AccountSecurity";
 export function Favourites() {
   const auth = useAuth();
   const {
@@ -131,6 +132,8 @@ export function Account() {
               Save changes
             </Button>
           </Form>
+          <hr />
+          <AccountSecurity />
           <hr />
           <Link to="/favourites">View saved cafés ({auth.saved.length})</Link>
           <Button
