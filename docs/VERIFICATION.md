@@ -1,5 +1,29 @@
 # Verification record
 
+## A3 update: 17 November 2026
+
+Based on `main` commit `d257b41`, including the team's merged review-rating display changes.
+
+| Check | Executed result |
+| --- | --- |
+| TypeScript/Vite production build and hosting packaging | Passed (`npm run build:hosting`) |
+| Oxlint | Passed |
+| PHP syntax | Passed for backend and API entry files |
+| Actual PHP/Apache/MariaDB integration | 140 assertions passed using PHP 8.4.27, Apache 2.4 and MariaDB 11.8.6 in a disposable local runtime |
+| New account flows | Current-password validation, duplicate email rejection, email/password updates, CSRF rotation, old credentials rejected, other sessions invalidated, account/review/favourite preservation and credential-change throttling passed |
+| Production URL routing | `/`, `/account`, `/cafes/1` and `/favourites` returned the built application through Apache |
+| Private source/credential paths | `.env`, backend PHP source and SQL were not served as downloadable content |
+| Clean SQL import | Imported successfully into the disposable MariaDB database |
+| New account UI in a real browser/mobile viewport | Pending team acceptance testing |
+| Production Docker image/Compose execution | Configuration prepared; not executed in this environment |
+| Stable public hosting / HTTPS | Not deployed; requires the team's hosting account and actual URL |
+
+The new tests ran against the packaged PHP-hosting directory, not a mock API. All test identities and credentials remained in an ignored, disposable validation environment. No schema migration is needed. The deployment files retain PHP 8.3 and MariaDB 10.11 as their configured versions; the new API tests used the locally available newer versions above, so container validation is still a separate pending check.
+
+Follow `TEAM-TESTING.md` on the actual host before recording final acceptance. The 19 manual cases are not marked passed in advance.
+
+## Original A2 verification
+
 Verified on 26 October 2026. This record distinguishes executed checks from setup paths that still need a team check.
 
 | Check                                                  | Result                                                                                         |
