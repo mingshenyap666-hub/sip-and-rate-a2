@@ -1,6 +1,7 @@
 .git
 node_modules
 dist
+hosting
 .env
 .env.*
 !.env.example
