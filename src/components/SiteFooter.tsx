@@ -17,7 +17,7 @@ export function Footer() {
           </small>
         </div>
       </div>
-      <small>INT1059 · A2 Working Prototype · Version 1</small>
+      <small>INT1059 · Advanced Web · A3</small>
     </footer>
   );
 }
