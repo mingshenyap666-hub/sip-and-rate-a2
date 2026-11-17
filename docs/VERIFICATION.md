@@ -1,6 +1,20 @@
 # Verification record
 
-## A3 update: 17 November 2026
+## Hosted A3 checks: 17 November 2026
+
+Live URL: https://sipratemingshen26.alwaysdata.net/
+
+- Alwaysdata Free, PHP 8.4, MariaDB 11.8, Apache routing and Force HTTPS configured.
+- Clean SQL imported: eight cafes and eight seeded reviews. The private environment file is outside the document root with owner-only permissions.
+- Local TypeScript/Vite build and hosting packaging passed; uploaded compiled assets passed a SHA-256 comparison.
+- Hosted HTTP checks passed: `/api/health`, database access, HTTP-to-HTTPS redirect, direct `/account` and `/cafes/1` routes, Secure/HttpOnly/SameSite cookie flags, and private-file protection.
+- A first-visit registration failure exposed competing anonymous session cookies. Application fix `97e364b` makes public cafe/health reads stateless while retaining sessions and CSRF for protected routes.
+- Focused hosted regression checks passed: three anonymous public endpoints send no replacement cookie; public data preserves the session CSRF token; a mutation without CSRF still returns 403.
+- Browser checks passed: registration, login retained after refresh, saving/unsaving, saved-page persistence, and review creation/editing/deletion with updated ratings. Temporary review content was removed.
+
+The earlier 140-assertion result below is a pre-deployment baseline, not a claim that the full suite was rerun against the public database. Independent team acceptance, email/password form journeys, physical devices/other browser engines, and Docker validation remain open. Use `TEAM-TESTING.md` to record those outcomes.
+
+## A3 pre-deployment record: 17 November 2026
 
 Based on `main` commit `d257b41`, including the team's merged review-rating display changes.
 
