@@ -65,8 +65,15 @@ function field(array $data, string $key, int $min, int $max): string {
 function user(): ?array {
     if (!isset($_SESSION['user_id'])) return null;
     if (($_SESSION['expires_at'] ?? 0) < time()) { unset($_SESSION['user_id']); return null; }
-    $row = query('SELECT u.UserID AS id, u.Name AS name, a.Email AS email, u.Created AS joined FROM `User` u JOIN Account a ON a.AccountID=u.AccountID WHERE u.UserID=? AND u.Active=1 AND a.Active=1', [$_SESSION['user_id']])->fetch();
+    $row = query('SELECT u.UserID AS id, u.Name AS name, a.Email AS email, a.Password AS passwordHash, u.Created AS joined FROM `User` u JOIN Account a ON a.AccountID=u.AccountID WHERE u.UserID=? AND u.Active=1 AND a.Active=1', [$_SESSION['user_id']])->fetch();
     if (!$row) { unset($_SESSION['user_id']); return null; }
+    // Credential changes invalidate other browser sessions without a schema migration.
+    $version = hash('sha256', $row['passwordHash'] . "\0" . $row['email']);
+    if (!hash_equals($version, $_SESSION['credential_version'] ?? '')) {
+        unset($_SESSION['user_id'], $_SESSION['credential_version']);
+        return null;
+    }
+    unset($row['passwordHash']);
     $row['id'] = (int)$row['id'];
     return $row;
 }
@@ -78,11 +85,33 @@ function requireUser(): array {
 }
 
 function signIn(int $id, bool $remember = false): void {
+    $account = query('SELECT a.Password,a.Email FROM Account a JOIN `User` u ON u.AccountID=a.AccountID WHERE u.UserID=?', [$id])->fetch();
     session_regenerate_id(true);
     $_SESSION['user_id'] = $id;
+    $_SESSION['credential_version'] = hash('sha256', $account['Password'] . "\0" . $account['Email']);
+    $_SESSION['remember'] = $remember;
     $_SESSION['expires_at'] = time() + ($remember ? 604800 : 7200);
     $_SESSION['csrf'] = bin2hex(random_bytes(32));
-    if ($remember) setcookie(session_name(), session_id(), ['expires' => $_SESSION['expires_at'], 'path' => '/', 'secure' => getenv('SECURE_COOKIES') === '1', 'httponly' => true, 'samesite' => 'Lax']);
+    setcookie(session_name(), session_id(), ['expires' => $remember ? $_SESSION['expires_at'] : 0, 'path' => '/', 'secure' => getenv('SECURE_COOKIES') === '1', 'httponly' => true, 'samesite' => 'Lax']);
+}
+
+function currentAccount(array $user, array $data): array {
+    $password = $data['currentPassword'] ?? '';
+    if (!is_string($password) || $password === '' || strlen($password) > 72 || str_contains($password, "\0")) {
+        throw new ApiError(422, 'Please enter your current password.');
+    }
+    $key = hash('sha256', 'account-change|' . $user['id']);
+    query('DELETE FROM LoginAttempt WHERE Created < DATE_SUB(NOW(), INTERVAL 15 MINUTE)');
+    if ((int)query('SELECT COUNT(*) FROM LoginAttempt WHERE AttemptKey=?', [$key])->fetchColumn() >= 10) {
+        throw new ApiError(429, 'Too many attempts. Please try again in 15 minutes.');
+    }
+    $account = query('SELECT a.AccountID,a.Password,a.Email FROM Account a JOIN `User` u ON u.AccountID=a.AccountID WHERE u.UserID=? AND u.Active=1 AND a.Active=1', [$user['id']])->fetch();
+    if (!$account || !password_verify($password, $account['Password'])) {
+        query('INSERT INTO LoginAttempt (AttemptKey) VALUES (?)', [$key]);
+        throw new ApiError(422, 'Your current password is incorrect.');
+    }
+    query('DELETE FROM LoginAttempt WHERE AttemptKey=?', [$key]);
+    return $account;
 }
 
 // One shared query keeps list, detail and saved cards consistent. Ratings are calculated.
