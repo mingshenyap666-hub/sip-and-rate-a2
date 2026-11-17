@@ -4,19 +4,21 @@ An English coffee-review application for INT1059 Assessments 2 and 3. Built on t
 
 ## Current status — 17 November 2026
 
-This README records the development work prepared by Ming Shen, explains how teammates can run the current version, and separates completed implementation from remaining deployment and acceptance work.
+This README records the development work prepared by Ming Shen, explains how teammates can run the current version, and separates completed deployment from the team's remaining acceptance and submission work.
+
+**Live testing website: [sipratemingshen26.alwaysdata.net](https://sipratemingshen26.alwaysdata.net/).** Teammates can register their own test accounts directly in a browser; no installation is required.
 
 | Item | Current status |
 | --- | --- |
 | A3 implementation | Prepared in `feat/a3-account-deployment` |
 | Merge into `main` | **Not merged.** Keep A3 separate until team review is complete. |
-| Public website | **Not deployed.** Hosting setup is pending; there is no confirmed live testing URL. |
+| Public website | **Deployed on Alwaysdata Free**, with PHP 8.4, MariaDB 11.8 and HTTPS |
 | Backend integration | **140 assertions passed** against real PHP and MariaDB |
-| Browser checks | Public-page checks completed; full signed-in browser acceptance remains open |
-| Deployment files | PHP-hosting package and production Docker configuration prepared |
+| Browser checks | Hosted registration, session persistence, favourites and review create/edit/delete checked; independent team acceptance remains open |
+| Deployment files | PHP-hosting package deployed; production Docker remains a prepared alternative |
 | Assessment submission | Report, live demonstration/code viva and final submission still require team preparation |
 
-**Open the [A3 branch](https://github.com/mingshenyap666-hub/sip-and-rate-a2/tree/feat/a3-account-deployment) to see the current work. The default `main` branch does not contain these A3 updates yet.** A branch can be deployed for testing before it is merged. The agreed next step is to publish this branch, let teammates test it, fix reported issues and then merge the accepted version.
+**Open the [A3 branch](https://github.com/mingshenyap666-hub/sip-and-rate-a2/tree/feat/a3-account-deployment) to see the current work. The default `main` branch does not contain these A3 updates yet.** The A3 branch is now deployed separately. The next step is for teammates to test it, report issues and agree on the final merge after fixes.
 
 ## Development work completed, step by step
 
@@ -50,7 +52,7 @@ Added Change email and Change password forms in `src/views/AccountSecurity.tsx`,
 
 ### 8. Prepare deployment files
 
-Added production Apache routing in `public/.htaccess` so React routes can be opened directly or refreshed. Added `npm run build:hosting` and an explicit packaging allowlist in `scripts/package-hosting.mjs` to exclude local credentials. Added the production `Dockerfile`, `compose.production.yaml` and PHP session configuration. Prepared source and hosting ZIPs, and changed the old A2 footer to `INT1059 · Advanced Web · A3`. These files are prepared; no public deployment has been completed.
+Added production Apache routing in `public/.htaccess` so React routes can be opened directly or refreshed. Added `npm run build:hosting` and an explicit packaging allowlist in `scripts/package-hosting.mjs` to exclude local credentials. Added the production `Dockerfile`, `compose.production.yaml` and PHP session configuration. Prepared source and hosting ZIPs, and changed the old A2 footer to `INT1059 · Advanced Web · A3`. The PHP-hosting package is now deployed; Docker remains an alternative.
 
 ### 9. Run checks and record results
 
@@ -62,13 +64,26 @@ Added production Apache routing in `public/.htaccess` so React routes can be ope
 | Public browser flows | Checked Home, Shuffle, search, empty results, Cold brew filtering, details, rating display, guest login redirects, required fields and missing-page recovery |
 | Narrow public-page layouts | Checked actual pages in 390 px and 768 px frames; no page overflow on the covered pages |
 
-The API suite covers accounts, reviews, favourites, email/password changes, session invalidation, CSRF, ownership and throttling against a real database. **Still unverified:** complete signed-in browser journeys, logged-in account-form layout/keyboard feedback, physical mobile devices, the configured PHP 8.3/MariaDB 10.11 Docker stack, and an actual public HTTPS deployment. Passing API checks does not mean all browser acceptance cases have passed.
+The API suite covers accounts, reviews, favourites, email/password changes, session invalidation, CSRF, ownership and throttling against a real database. These 140 assertions are the pre-deployment result. Hosted checks and the deployment fix are recorded in step 11 below. **Still open:** the full team checklist, email/password form journeys in browsers, keyboard/accessibility checks, physical mobile devices, other browser engines and the configured PHP 8.3/MariaDB 10.11 Docker stack. Passing these checks does not mean all acceptance cases have passed.
 
-See [QA results](docs/QA-RESULTS.md) and [verification history](docs/VERIFICATION.md). Further local browser testing was paused so the next acceptance round can be performed by teammates on the hosted branch.
+See the historical [pre-deployment QA results](docs/QA-RESULTS.md) and updated [verification history](docs/VERIFICATION.md). Teammates should perform the independent acceptance round on the hosted branch.
 
 ### 10. Prepare the team handover
 
-Uploaded the A3 implementation, deployment instructions and test results to the A3 branch. Added the [19-case team checklist](docs/TEAM-TESTING.md) with expected results and an issue-report template. Hosting registration has been explored, but no host, database or public URL is confirmed as configured. The remaining deployment and team tasks are listed below.
+Uploaded the A3 implementation, deployment instructions and test results to the A3 branch. Added the [19-case team checklist](docs/TEAM-TESTING.md) with expected results and an issue-report template. Updated this README with the actual live URL and deployment steps so the team can follow the work.
+
+### 11. Deploy the A3 branch and fix the first-visit session issue
+
+1. Registered the hosting account and changed its plan from Small to **Free (EUR 0)**: 1 GB disk, 256 MB RAM and 0.25 CPU. No custom domain was purchased.
+2. Created an empty MariaDB 11.8 database and imported the clean SQL: eight fictional cafes and eight seeded reviews.
+3. Configured a PHP 8.4 site, set the document root to `~/sip-and-rate/hosting/public_html/`, and enabled Force HTTPS.
+4. Cloned `feat/a3-account-deployment` onto the server. Installing build dependencies on the free host was killed, so the production build was completed on the development computer instead.
+5. Uploaded the compiled frontend and verified its SHA-256 checksum, then installed the PHP backend and public assets. Source, SQL and private configuration remain outside the web document root.
+6. Stored database settings in `~/sip-and-rate/.env` with owner-only permissions and linked `hosting/.env` to `../.env`. Enabled `SECURE_COOKIES=1`.
+7. Verified HTTPS health/database access, HTTP-to-HTTPS redirects, direct React routes, secure cookie flags and protection of private files.
+8. Found a first-visit registration problem: public cafe requests and `/auth/me` could create competing session cookies. Fixed `backend/api.php` so public reads do not start a session. Protected actions retain CSRF validation. Added regression cases to `scripts/test-api.py`; the three public-cookie checks, session continuity and rejection of missing CSRF all passed on the host.
+9. Checked registration, retained login after refresh, saving/unsaving a cafe, and review creation, editing and deletion through the live browser. Temporary review content was removed. The hosted application includes the fix in commit `97e364b`; later documentation/test commits do not require a frontend rebuild.
+10. Kept A3 separate from `main`. The website is available for team testing, not yet signed off as the final submission.
 
 ## What works
 
@@ -187,7 +202,7 @@ The script creates two unique test accounts and removes its own reviews/favourit
 
 ## How teammates should test
 
-Once a hosted URL is available, teammates can test in their browsers without installing development tools. Until then, use a local setup above.
+Open [the live A3 website](https://sipratemingshen26.alwaysdata.net/) in a browser. Each teammate should create a separate disposable account and use a unique test password. Local setup is only needed to change code or run development tests.
 
 1. Record the branch/commit, URL, date, browser and device.
 2. Browse, search and filter cafés; open a detail page and refresh it.
@@ -200,9 +215,9 @@ Once a hosted URL is available, teammates can test in their browsers without ins
 
 Use [TEAM-TESTING.md](docs/TEAM-TESTING.md) to record actual outcomes. A blank result is pending, not a pass.
 
-## Deploy the A3 branch — still pending
+## Deploy or update the A3 branch
 
-Build from `feat/a3-account-deployment` and record the deployed commit. Deployment does not require merging first. A PHP-hosting deployment follows these steps:
+The initial Alwaysdata deployment is complete. To deploy another instance or update it, build from `feat/a3-account-deployment` and record the deployed commit. Deployment does not require merging first. A PHP-hosting deployment follows these steps:
 
 1. Obtain hosting with PHP 8.3+, `pdo_mysql`, `mbstring`, Apache rewrite support, MariaDB and HTTPS.
 2. Prepare the package from the A3 checkout:
@@ -212,13 +227,13 @@ Build from `feat/a3-account-deployment` and record the deployed commit. Deployme
    npm run build:hosting
    ```
 
-3. Create an empty database and import the packaged `hosting/sip_rate.sql` once.
+3. For a new installation only, create an empty database and import the packaged `hosting/sip_rate.sql` once. Preserve the live database during updates; do not reimport the seed over team accounts or reviews.
 4. Upload the contents of `hosting/public_html/` as the web root. Place `hosting/backend/` outside that public directory, as its sibling.
 5. Copy `hosting/.env.example` to a private `.env` beside `backend/`, enter the host's database settings and use `SECURE_COOKIES=1` for HTTPS. Keep credentials, SQL and source archives outside the public web root.
 6. Enable HTTPS, check `/api/health`, and verify direct navigation/refresh of `/account` and `/cafes/1`.
 7. Share the actual HTTPS URL with teammates and run acceptance checks before recording deployment as complete.
 
-The packaging script rebuilds `hosting/`; keep host credentials outside that generated directory. Full directory requirements, the production Docker option and troubleshooting are in [DEPLOYMENT.md](docs/DEPLOYMENT.md). Production Docker needs an existing server and HTTPS reverse proxy and has not been deployed.
+Build on a development computer, not on the 256 MB free host. The packaging script rebuilds `hosting/`; keep host credentials outside that generated directory and preserve/recreate the existing `hosting/.env -> ../.env` link after uploading. Update files without deleting the live `.env` or database. Full requirements and troubleshooting are in [DEPLOYMENT.md](docs/DEPLOYMENT.md). Production Docker needs an existing server and HTTPS reverse proxy and has not been deployed.
 
 ## Team branch and merge workflow
 
@@ -273,7 +288,7 @@ The repository excludes local passwords, installed dependencies and disposable t
 
 The team still needs to:
 
-1. Confirm a stable hosted HTTPS URL and record the exact accepted Git commit.
+1. Keep the hosted HTTPS site available through marking and record the exact accepted Git commit in the report.
 2. Test the hosted branch, fix reported issues and merge the accepted A3 version into `main`.
 3. Prepare the **full source ZIP**, clean SQL and README. Include source, configuration and assets, not only `dist/` or `hosting/`. Exclude `.env`, installed dependencies and disposable QA files.
 4. Complete the required **450–550-word English PDF report** with team names/IDs, actual contributions, the website URL and the public GitHub repository link.
