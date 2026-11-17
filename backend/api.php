@@ -6,16 +6,21 @@ header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
 ini_set('display_errors', '0');
-ini_set('session.use_strict_mode', '1');
-ini_set('session.gc_maxlifetime', '604800');
-session_name('siprate_session');
-session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'secure' => getenv('SECURE_COOKIES') === '1', 'httponly' => true, 'samesite' => 'Lax']);
-if (!session_start()) respond(['error' => 'Session storage is unavailable. Please contact the site administrator.'], 503);
-$_SESSION['csrf'] ??= bin2hex(random_bytes(32));
+$method = $_SERVER['REQUEST_METHOD'];
+$path = rtrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+// Public reads must not issue a competing session cookie while /auth/me loads.
+// Otherwise a first visit can pair one session's cookie with another's CSRF token.
+$publicRead = $method === 'GET' && ($path === '/api/health' || preg_match('#^/api/cafes(?:/|$)#', $path));
+if (!$publicRead) {
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.gc_maxlifetime', '604800');
+    session_name('siprate_session');
+    session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'secure' => getenv('SECURE_COOKIES') === '1', 'httponly' => true, 'samesite' => 'Lax']);
+    if (!session_start()) respond(['error' => 'Session storage is unavailable. Please contact the site administrator.'], 503);
+    $_SESSION['csrf'] ??= bin2hex(random_bytes(32));
+}
 
 try {
-    $method = $_SERVER['REQUEST_METHOD'];
-    $path = rtrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
     if (!in_array($method, ['GET', 'POST', 'PUT', 'DELETE'], true)) throw new ApiError(405, 'Method not allowed.');
     if ($method !== 'GET' && !hash_equals($_SESSION['csrf'], $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '')) throw new ApiError(403, 'Your session changed. Refresh the page and try again.');
 
