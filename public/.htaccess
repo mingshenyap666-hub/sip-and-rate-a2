@@ -1,0 +1,13 @@
+Options -Indexes -MultiViews
+DirectoryIndex index.html
+RewriteEngine On
+
+# The document root contains only built frontend assets and the API entry point.
+RewriteRule (^|/)\. - [F,L]
+RewriteRule ^api(?:/|$) api/index.php [END,QSA]
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+RewriteRule ^(?:assets|images|icons)/ - [R=404,L]
+# React routes must also work when opened directly or refreshed.
+RewriteRule ^ index.html [END]
