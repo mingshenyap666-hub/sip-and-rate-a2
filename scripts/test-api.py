@@ -47,6 +47,13 @@ class Client:
         return result
 
 
+# First-visit public requests can run alongside /auth/me. They must not replace
+# its new session cookie with a different anonymous session's cookie.
+for path in ['/health', '/cafes?random=1', '/cafes/1']:
+    with urllib.request.urlopen(BASE + path, timeout=10) as response:
+        check(response.status == 200 and response.headers.get('Set-Cookie') is None,
+              'Anonymous public read does not replace the session cookie: ' + path)
+
 a, b, guest = Client(), Client(), Client()
 a.request("GET", "/health")
 all_cafes = a.request("GET", "/cafes")["cafes"]
