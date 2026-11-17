@@ -19,7 +19,13 @@ Use an account that supports PHP 8.3 or newer, the `pdo_mysql` and `mbstring` ex
 6. Check `https://YOUR-HOST/api/health` returns `{"ok":true}`. Open `/account` and a café detail URL directly and refresh: the React application should load rather than returning an Apache 404.
 7. Run the manual acceptance checklist in `TEAM-TESTING.md`. Confirm `.env`, `/backend/bootstrap.php` and `/sip_rate.sql` are not downloadable. Confirm the URL works from another device and remains available during marking.
 
-No hosting credentials or chosen production URL are stored in this repository. Do not claim deployment is complete until these steps have been performed against the actual host.
+Hosting credentials must never be committed. The live testing URL and actual deployment history are recorded in the root README.
+
+### Current Alwaysdata installation
+
+The A3 branch runs on Alwaysdata Free using PHP 8.4, MariaDB 11.8 and Force HTTPS. Its document root is `~/sip-and-rate/hosting/public_html/`. Private credentials are stored at `~/sip-and-rate/.env` (mode 600), with `hosting/.env` linked to `../.env`. The live database must be preserved during updates.
+
+Build on a development computer and upload the generated package: dependency installation was killed on the 256 MB free host. Do not replace the working deployment with a development server. Because `build:hosting` recreates `hosting/`, preserve or recreate the `.env` symlink after an upload. The server needs no running Node process once the frontend is built.
 
 ## Option B: production Docker on an existing server
 
