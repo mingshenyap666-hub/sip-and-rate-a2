@@ -2,6 +2,18 @@
 
 An English coffee-review application for INT1059 Assessments 2 and 3. Built on the lecturer's React + PHP + MariaDB starter and adapted to the team's Sip & Rate Figma design.
 
+## Prepared update — 23 November 2026
+
+The `fix/discover-suburb-loading` branch prepares the team's reported navigation and loading fixes. This update is uploaded to GitHub but **not yet deployed**; the live site still uses the 17 November version below.
+
+- Replaced the decorative Discover arrow/link with an actual React Bootstrap dropdown: All cafés and Browse by suburb. Suburb names are loaded from the existing café API, deduplicated and sorted.
+- Selecting a suburb opens a shareable `/cafes?suburb=...` URL and filters the complete API result by exact suburb. Search and coffee-style changes retain the suburb; Clear filters and All cafés reset it. No PHP or database migration is required. If API pagination is introduced later, move this filtering to the server.
+- Displayed “Brewing something good…” while results load. Result counts now appear only after a successful response; failed requests display an error rather than a misleading zero count.
+- Added responsive dropdown styling and kept React Bootstrap's keyboard and outside-click handling.
+- Validation: TypeScript/Vite production build, hosting packaging and Oxlint passed. Interactive browser checks and hosted verification remain pending: the available browser could not reach the local preview. GitHub upload was completed through the signed-in browser after the connector rejected write access.
+
+Before release, check dropdown opening/closing (mouse, touch, Enter, arrow keys and Escape), suburb selection, a combined suburb/search/style query, Clear filters, browser Back/Forward, slow loading, a genuine empty result and an API error. Check a narrow mobile screen. Upload the built frontend assets first, then `index.html`, preserving the database, private `.env` and existing backend. Do not merge A3 into `main` until team review is complete.
+
 ## Current status — 17 November 2026
 
 This README records the development work prepared by Ming Shen, explains how teammates can run the current version, and separates completed deployment from the team's remaining acceptance and submission work.
