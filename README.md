@@ -2,19 +2,19 @@
 
 An English coffee-review application for INT1059 Assessments 2 and 3. Built on the lecturer's React + PHP + MariaDB starter and adapted to the team's Sip & Rate Figma design.
 
-## Prepared update — 23 November 2026
+## Deployed update — 23 November 2026
 
-The `fix/discover-suburb-loading` branch prepares the team's reported navigation and loading fixes. This update is uploaded to GitHub but **not yet deployed**; the live site still uses the 17 November version below.
+The `fix/discover-suburb-loading` branch contains the team's navigation and loading fixes and is **deployed** at [sipratemingshen26.alwaysdata.net](https://sipratemingshen26.alwaysdata.net/). It builds on the A3 branch; `main` remains unchanged pending team review.
 
 - Replaced the decorative Discover arrow/link with an actual React Bootstrap dropdown: All cafés and Browse by suburb. Suburb names are loaded from the existing café API, deduplicated and sorted.
 - Selecting a suburb opens a shareable `/cafes?suburb=...` URL and filters the complete API result by exact suburb. Search and coffee-style changes retain the suburb; Clear filters and All cafés reset it. No PHP or database migration is required. If API pagination is introduced later, move this filtering to the server.
 - Displayed “Brewing something good…” while results load. Result counts now appear only after a successful response; failed requests display an error rather than a misleading zero count.
 - Added responsive dropdown styling and kept React Bootstrap's keyboard and outside-click handling.
-- Validation: TypeScript/Vite production build, hosting packaging and Oxlint passed. Interactive browser checks and hosted verification remain pending: the available browser could not reach the local preview. GitHub upload was completed through the signed-in browser after the connector rejected write access.
+- Validation: TypeScript/Vite production build, hosting packaging and Oxlint passed. On the live website, checked the eight sorted suburb options, Fitzroy returning Little Ritual Coffee, search retaining the selected suburb, combined search/style/suburb filters, a genuine empty result, Clear filters restoring all eight cafés, browser Back/Forward, Enter/Escape and outside-click menu dismissal. Observed the new loading message during a real request. Checked menu display and suburb selection at a 390 px viewport. These focused checks do not replace independent team acceptance.
 
-Before release, check dropdown opening/closing (mouse, touch, Enter, arrow keys and Escape), suburb selection, a combined suburb/search/style query, Clear filters, browser Back/Forward, slow loading, a genuine empty result and an API error. Check a narrow mobile screen. Upload the built frontend assets first, then `index.html`, preserving the database, private `.env` and existing backend. Do not merge A3 into `main` until team review is complete.
+Deployment: built locally, uploaded the frontend archive through SSH and verified its SHA-256 checksum. Backed up the previous `index.html` outside the public directory, copied new assets first, then atomically replaced `index.html`. Preserved old assets, the database, private `.env` and PHP backend. Switched the server source checkout to `fix/discover-suburb-loading`. No database import or migration was run. Remaining checks: physical mobile/touch devices, other browsers, complete keyboard navigation, controlled slow-network/API-error cases and independent team acceptance. Do not merge A3 into `main` until team review is complete.
 
-## Current status — 17 November 2026
+## Current status — 23 November 2026
 
 This README records the development work prepared by Ming Shen, explains how teammates can run the current version, and separates completed deployment from the team's remaining acceptance and submission work.
 
@@ -22,7 +22,7 @@ This README records the development work prepared by Ming Shen, explains how tea
 
 | Item | Current status |
 | --- | --- |
-| A3 implementation | Prepared in `feat/a3-account-deployment` |
+| A3 implementation | Base in `feat/a3-account-deployment`; deployed fixes in `fix/discover-suburb-loading` |
 | Merge into `main` | **Not merged.** Keep A3 separate until team review is complete. |
 | Public website | **Deployed on Alwaysdata Free**, with PHP 8.4, MariaDB 11.8 and HTTPS |
 | Backend integration | **140 assertions passed** against real PHP and MariaDB |
@@ -30,7 +30,7 @@ This README records the development work prepared by Ming Shen, explains how tea
 | Deployment files | PHP-hosting package deployed; production Docker remains a prepared alternative |
 | Assessment submission | Report, live demonstration/code viva and final submission still require team preparation |
 
-**Open the [A3 branch](https://github.com/mingshenyap666-hub/sip-and-rate-a2/tree/feat/a3-account-deployment) to see the current work. The default `main` branch does not contain these A3 updates yet.** The A3 branch is now deployed separately. The next step is for teammates to test it, report issues and agree on the final merge after fixes.
+**Open the [deployed branch](https://github.com/mingshenyap666-hub/sip-and-rate-a2/tree/fix/discover-suburb-loading) to see the current work. The default `main` branch does not contain these A3 updates yet.** This branch includes the original A3 work plus the Discover/loading fixes. The next step is for teammates to test it, report issues and agree on the final merge after fixes.
 
 ## Development work completed, step by step
 
@@ -97,11 +97,15 @@ Uploaded the A3 implementation, deployment instructions and test results to the 
 9. Checked registration, retained login after refresh, saving/unsaving a cafe, and review creation, editing and deletion through the live browser. Temporary review content was removed. The hosted application includes the fix in commit `97e364b`; later documentation/test commits do not require a frontend rebuild.
 10. Kept A3 separate from `main`. The website is available for team testing, not yet signed off as the final submission.
 
+### 12. Deploy the Discover dropdown and loading fix
+
+Completed the 23 November update described at the top of this README. The live site now supports Browse by suburb from Discover and shows a loading message before result counts. Deployed only the compiled frontend, kept a rollback copy of the previous index, and checked the live interactions. The separate fix branch is the current review/deployment branch; neither it nor A3 has been merged into `main`.
+
 ## What works
 
 - A live MariaDB collection of eight fictional Melbourne cafés.
 - Home displays three randomly selected records; Shuffle requests another selection.
-- Search by café name, suburb or bean origin; filter by coffee style.
+- Search by café name, suburb or bean origin; filter by coffee style and use the Discover dropdown to browse by exact suburb.
 - Detail pages with images, descriptions, coffee metadata and calculated ratings.
 - Registration, login, logout, remembered sessions, and editable display names, email addresses and passwords.
 - Private saved cafés, plus creation, editing and deletion of your own reviews.
@@ -114,7 +118,7 @@ This is a working application with a real database, not a static Figma export. T
 For a new checkout:
 
 ```sh
-git clone --branch feat/a3-account-deployment https://github.com/mingshenyap666-hub/sip-and-rate-a2.git
+git clone --branch fix/discover-suburb-loading https://github.com/mingshenyap666-hub/sip-and-rate-a2.git
 cd sip-and-rate-a2
 ```
 
@@ -122,8 +126,8 @@ If you already have a checkout, save or commit your own work before switching br
 
 ```sh
 git fetch origin
-git switch feat/a3-account-deployment
-git pull --ff-only origin feat/a3-account-deployment
+git switch fix/discover-suburb-loading
+git pull --ff-only origin fix/discover-suburb-loading
 ```
 
 If Git refuses the pull or reports conflicts, preserve your local work and resolve the branch state before continuing; do not force-reset your changes.
@@ -180,7 +184,7 @@ This starts PHP at `127.0.0.1:8080` and Vite at `localhost:5173`. Open the Vite 
 
 ## VS Code Dev Container / Codespaces
 
-The included dev container uses the same Compose services and opens `/workspace`. Select the A3 branch when creating a Codespace, or switch to it in an existing checkout. After creation, run `npm run dev` in its terminal and open forwarded port 5173. PHP and MariaDB are started by Compose. Node must be available to the host initialization command that creates `.env`; Codespaces supplies Node. This path is provided but has not been tested in this QA run.
+The included dev container uses the same Compose services and opens `/workspace`. Select `fix/discover-suburb-loading` when creating a Codespace, or switch to it in an existing checkout. After creation, run `npm run dev` in its terminal and open forwarded port 5173. PHP and MariaDB are started by Compose. Node must be available to the host initialization command that creates `.env`; Codespaces supplies Node. This path is provided but has not been tested in this QA run.
 
 ## Build and test
 
@@ -229,7 +233,7 @@ Use [TEAM-TESTING.md](docs/TEAM-TESTING.md) to record actual outcomes. A blank r
 
 ## Deploy or update the A3 branch
 
-The initial Alwaysdata deployment is complete. To deploy another instance or update it, build from `feat/a3-account-deployment` and record the deployed commit. Deployment does not require merging first. A PHP-hosting deployment follows these steps:
+The initial Alwaysdata deployment is complete. To deploy another instance or update it, build from `fix/discover-suburb-loading` and record the deployed commit. Deployment does not require merging first. A PHP-hosting deployment follows these steps:
 
 1. Obtain hosting with PHP 8.3+, `pdo_mysql`, `mbstring`, Apache rewrite support, MariaDB and HTTPS.
 2. Prepare the package from the A3 checkout:
@@ -252,11 +256,11 @@ Build on a development computer, not on the 256 MB free host. The packaging scri
 For additional work, create a separate feature branch from the current A3 branch:
 
 ```sh
-git switch feat/a3-account-deployment
+git switch fix/discover-suburb-loading
 git switch -c feature/your-change
 ```
 
-Commit and push your work, then open a pull request targeting `feat/a3-account-deployment` while A3 is being assembled. Explain what changed and how it was checked. After hosted testing and fixes, open the final A3 pull request to `main` and agree on a reviewer/merger within the team. The deployed version and `main` are not automatically the same version.
+Commit and push your work, then open a pull request targeting `fix/discover-suburb-loading` while this deployed update is under review. Explain what changed and how it was checked. After hosted testing and fixes, open the final A3 pull request to `main` and agree on a reviewer/merger within the team. The deployed version and `main` are not automatically the same version.
 
 ## Export the database
 
