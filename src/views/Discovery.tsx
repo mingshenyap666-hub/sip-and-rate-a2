@@ -9,7 +9,8 @@ export function Discovery({ home = false }: { home?: boolean }) {
   const [params] = useSearchParams(),
     navigate = useNavigate();
   const q = params.get("q") ?? "",
-    style = params.get("style") ?? "";
+    style = params.get("style") ?? "",
+    suburb = home ? "" : params.get("suburb") ?? "";
   const query = new URLSearchParams(home ? { random: "1" } : { q, style });
   const {
     data,
@@ -17,11 +18,15 @@ export function Discovery({ home = false }: { home?: boolean }) {
     error,
     retry,
   } = useApi<{ cafes: Cafe[] }>("/cafes?" + query);
-  const cafes = data?.cafes ?? [];
+  // The API returns the complete matching collection (no pagination). Match the
+  // selected suburb exactly, independently of the free-text and style filters.
+  const cafes = (data?.cafes ?? []).filter(
+    (cafe) => !suburb || cafe.suburb === suburb,
+  );
   function search(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const input = String(new FormData(e.currentTarget).get("q") ?? "");
-    navigate("/cafes?" + new URLSearchParams({ q: input, style }));
+    navigate("/cafes?" + new URLSearchParams({ q: input, style, suburb }));
   }
   const searchForm = (
     <form className="search-box" onSubmit={search} role="search">
@@ -80,6 +85,7 @@ export function Discovery({ home = false }: { home?: boolean }) {
           <p className="eyebrow">Find your next ritual</p>
           <h1>Discover your kind of coffee.</h1>
           <p>Explore our Melbourne café collection.</p>
+          {suburb && <p className="selected-suburb">Browsing cafés in <strong>{suburb}</strong></p>}
           {searchForm}
         </section>
       )}
@@ -98,6 +104,7 @@ export function Discovery({ home = false }: { home?: boolean }) {
                 new URLSearchParams({
                   q: home ? "" : q,
                   style: s === "All coffee" ? "" : s,
+                  suburb,
                 })
               }
             >
@@ -116,8 +123,12 @@ export function Discovery({ home = false }: { home?: boolean }) {
                   ? "Results for “" + q + "”"
                   : "The café collection."}
             </h2>
-            <p>
-              {home
+            <p role="status" aria-live="polite">
+              {busy
+                ? "Brewing something good…"
+                : error
+                  ? "We couldn’t load the cafés. Please try again."
+                  : home
                 ? "A fresh selection from our café collection."
                 : `${cafes.length} café${cafes.length === 1 ? "" : "s"} to discover`}
             </p>
