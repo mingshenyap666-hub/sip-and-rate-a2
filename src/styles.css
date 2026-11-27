@@ -362,6 +362,35 @@ main {
   flex-wrap: wrap;
   align-items: center;
 }
+.cafe-comparison {
+  margin-bottom: 24px;
+  padding: clamp(12px, 3vw, 24px);
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.cafe-comparison-heading {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.cafe-comparison p {
+  margin: 8px 0 0;
+}
+.cafe-comparison-table {
+  width: 100%;
+  margin-top: 12px;
+  table-layout: fixed;
+}
+.cafe-comparison-table th,
+.cafe-comparison-table td {
+  padding: 8px 6px;
+  border-top: 1px solid var(--line);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.cafe-comparison-table thead th {
+  background: var(--sage);
+}
 .cafe-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

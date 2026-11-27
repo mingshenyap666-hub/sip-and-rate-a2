@@ -1,11 +1,29 @@
 import type { FormEvent } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import Button from "react-bootstrap/Button";
 import { useApi } from "../lib/useApi";
 import type { Cafe } from "../lib/api";
+import { money } from "../lib/api";
 import { CafeGrid, Empty, Icon, Loading, Notice } from "../components/Common";
 const styles = ["All coffee", "Espresso", "Filter", "Cold brew", "Specialty"];
+const comparisonRows: { label: string; value: (cafe: Cafe) => string }[] = [
+  {
+    label: "Coffee price (AUD)",
+    value: (cafe) => `${money(cafe.priceFrom)}–${money(cafe.priceTo)}`,
+  },
+  { label: "Coffee rating", value: (cafe) => formatRating(cafe.rating) },
+  { label: "Atmosphere", value: (cafe) => formatRating(cafe.atmosphereRating) },
+  { label: "Service", value: (cafe) => formatRating(cafe.serviceRating) },
+  { label: "Reviews", value: (cafe) => String(cafe.reviewCount) },
+];
+
+function formatRating(rating: number | null) {
+  return rating === null ? "No rating yet" : `${rating.toFixed(1)} / 5`;
+}
+
 export function Discovery({ home = false }: { home?: boolean }) {
+  const [selection, setSelection] = useState<Cafe[]>([]);
   const [params] = useSearchParams(),
     navigate = useNavigate();
   const q = params.get("q") ?? "",
@@ -18,6 +36,35 @@ export function Discovery({ home = false }: { home?: boolean }) {
     retry,
   } = useApi<{ cafes: Cafe[] }>("/cafes?" + query);
   const cafes = data?.cafes ?? [];
+  const selectedCafes = selection.map(
+    (selected) => cafes.find((cafe) => cafe.id === selected.id) ?? selected,
+  );
+
+  function toggleComparison(cafe: Cafe) {
+    setSelection((current) => {
+      if (current.some((item) => item.id === cafe.id)) {
+        return current.filter((item) => item.id !== cafe.id);
+      }
+      return current.length < 2 ? [...current, cafe] : current;
+    });
+  }
+
+  function renderComparisonButton(cafe: Cafe) {
+    const selected = selectedCafes.some((item) => item.id === cafe.id);
+    return (
+      <Button
+        className="mt-3"
+        size="sm"
+        variant={selected ? "primary" : "outline-primary"}
+        aria-label={`Compare ${cafe.name}`}
+        aria-pressed={selected}
+        disabled={!selected && selectedCafes.length >= 2}
+        onClick={() => toggleComparison(cafe)}
+      >
+        {selected ? "Selected" : "Compare"}
+      </Button>
+    );
+  }
   function search(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const input = String(new FormData(e.currentTarget).get("q") ?? "");
@@ -137,6 +184,68 @@ export function Discovery({ home = false }: { home?: boolean }) {
             </Button>
           </div>
         </div>
+        {!home && (
+          <section
+            className="cafe-comparison"
+            aria-labelledby="comparison-heading"
+          >
+            <div className="between cafe-comparison-heading">
+              <h3 id="comparison-heading">Compare cafés</h3>
+              {selectedCafes.length > 0 && (
+                <Button
+                  size="sm"
+                  variant="outline-primary"
+                  onClick={() => setSelection([])}
+                >
+                  Clear comparison
+                </Button>
+              )}
+            </div>
+            <p role="status">
+              {selectedCafes.length === 0 && "Choose two cafés to compare."}
+              {selectedCafes.length === 1 &&
+                `${selectedCafes[0].name} selected. Choose one more café.`}
+              {selectedCafes.length === 2 &&
+                "Two cafés selected. Remove one to compare another."}
+            </p>
+            {selectedCafes.length === 2 && (
+              <table
+                className="cafe-comparison-table"
+                aria-labelledby="comparison-heading"
+              >
+                <thead>
+                  <tr>
+                    <th scope="col">Feature</th>
+                    {selectedCafes.map((cafe) => (
+                      <th scope="col" key={cafe.id}>
+                        <Link to={"/cafes/" + cafe.id}>{cafe.name}</Link>
+                        <Button
+                          className="d-block px-0"
+                          size="sm"
+                          variant="link"
+                          aria-label={`Remove ${cafe.name} from comparison`}
+                          onClick={() => toggleComparison(cafe)}
+                        >
+                          Remove
+                        </Button>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {comparisonRows.map(({ label, value }) => (
+                    <tr key={label}>
+                      <th scope="row">{label}</th>
+                      {selectedCafes.map((cafe) => (
+                        <td key={cafe.id}>{value(cafe)}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+        )}
         {busy ? (
           <Loading />
         ) : error ? (
@@ -147,7 +256,10 @@ export function Discovery({ home = false }: { home?: boolean }) {
             </button>
           </Notice>
         ) : cafes.length ? (
-          <CafeGrid cafes={cafes} />
+          <CafeGrid
+            cafes={cafes}
+            renderAction={home ? undefined : renderComparisonButton}
+          />
         ) : (
           <Empty title="No cafés found.">
             <p>Try a different suburb, origin or coffee style.</p>

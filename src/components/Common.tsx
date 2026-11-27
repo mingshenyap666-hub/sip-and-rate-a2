@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import Button from "react-bootstrap/Button";
 import { useAuth } from "../lib/useAuth";
@@ -81,7 +82,7 @@ export function SaveButton({
     </>
   );
 }
-export function CafeCard({ cafe }: { cafe: Cafe }) {
+export function CafeCard({ cafe, action }: { cafe: Cafe; action?: ReactNode }) {
   return (
     <article className="cafe-card">
       <Link
@@ -113,15 +114,22 @@ export function CafeCard({ cafe }: { cafe: Cafe }) {
           <span className="tag">{cafe.style}</span>
           <small>{cafe.origin} beans</small>
         </div>
+        {action}
       </div>
     </article>
   );
 }
-export function CafeGrid({ cafes }: { cafes: Cafe[] }) {
+export function CafeGrid({
+  cafes,
+  renderAction,
+}: {
+  cafes: Cafe[];
+  renderAction?: (cafe: Cafe) => ReactNode;
+}) {
   return (
     <div className="cafe-grid">
       {cafes.map((c) => (
-        <CafeCard key={c.id} cafe={c} />
+        <CafeCard key={c.id} cafe={c} action={renderAction?.(c)} />
       ))}
     </div>
   );
